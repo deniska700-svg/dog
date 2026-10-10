@@ -6,6 +6,7 @@ def get_list_subbreeds(breed):
     url_sub_breed_list = f'https://dog.ceo/api/breed/{breed}/list'
     response_list = requests.get(url_sub_breed_list)
     dog_list = response_list.json()['message']
+    print(dog_list)
     
     return {
         'breed': breed,
@@ -13,35 +14,52 @@ def get_list_subbreeds(breed):
     }
 
 
-def get_random_breed_image(breed, dog_list):
+def get_breed_image(breed):
     breed_image = [] 
     filename = []
     
-    if dog_list:
-        for dog in dog_list:
-            url_sub_breed = f'https://dog.ceo/api/breed/{breed}/{dog}/images/random'
-            response = requests.get(url_sub_breed)
-            dog_image = response.json()['message']
-            name = dog_image.split('/')[-1]
-            filename.append(name)
-            breed_image.append(dog_image)
-            print(f'Изображение: {name}')
-    else:
-        url_breed = f'https://dog.ceo/api/breed/{breed}/images/random'
-        response = requests.get(url_breed)
-        dog_image = response.json()['message']
-        name = dog_image.split('/')[-1]
-        filename.append(name)
-        breed_image.append(dog_image)
-        print(f'Изображение: {name}')
+    url = f'https://dog.ceo/api/breed/{breed}/images/random'
+    response = requests.get(url)
+    dog_image = response.json()['message']
+    name = dog_image.split('/')[-1]
+    filename.append(name)
+    breed_image.append(dog_image)
+    print(f'Изображение породы: {name}')
     
     return {
         'breed': breed,
         'filename': filename,
         'breed_image': breed_image
     }
+
+
+def get_subbred_image(breed, dog_list):
+    breed_image = [] 
+    filename = []
     
-    
+    for dog in dog_list:
+        url = f'https://dog.ceo/api/breed/{breed}/{dog}/images/random'
+        response = requests.get(url)
+        dog_image = response.json()['message']
+        name = dog_image.split('/')[-1]
+        filename.append(name)
+        breed_image.append(dog_image)
+        print(f'Изображение подпороды: {name}')
+
+    return {
+        'breed': breed,
+        'filename': filename,
+        'breed_image': breed_image
+    }
+
+
+def get_random_breed_image(breed, dog_list):  
+    if dog_list:
+        return get_subbred_image(breed, dog_list)
+    else:
+        return get_breed_image(breed)
+
+        
 def create_folder_on_ya_disk(breed, user_token):
     params = {
         'path': f'/{breed}'
@@ -83,11 +101,11 @@ def upload_image_to_ya_disk(breed, filename, breed_image, user_token):
 breed = input('Ведите название породы собаки на английском языке: ')
 user_token = input('Введите Ваш OAuth-токен Яндекс Диска: ')
 
-subbreds = get_list_subbreeds(breed)
+list_subbreds = get_list_subbreeds(breed)
 
 dog_image_link = get_random_breed_image(
-    breed=subbreds['breed'],
-    dog_list=subbreds['dog_list']
+    breed=list_subbreds['breed'],
+    dog_list=list_subbreds['dog_list']
 )
 
 create_folder_on_ya_disk(
