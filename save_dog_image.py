@@ -2,10 +2,7 @@ import requests
 import json
 
 
-API_KEY = ''
-
-
-def save_dog_image(breed):
+def get_random_breed_image(breed):
     breed_image = [] 
     filename = []
     
@@ -30,11 +27,19 @@ def save_dog_image(breed):
         breed_image.append(dog_image)
         print(f'Изображение: {name}')
     
+    return {
+        'breed': breed,
+        'filename': filename,
+        'breed_image': breed_image
+    }
+    
+    
+def upload_image_to_ya_disk(breed, filename, breed_image, user_token):
     params = {
-        'path': {breed}
+        'path': f'/{breed}'
     }
     headers = {
-        'authorization': f'OAuth {API_KEY}'
+        'authorization': f'OAuth {user_token}'
     }
     response = requests.put('https://cloud-api.yandex.net/v1/disk/resources', 
                             params=params, 
@@ -61,5 +66,15 @@ def save_dog_image(breed):
         
         print(f"Информация о {filename} фотографиях успешно сохранена в {output_file}")
 
-    
-save_dog_image('hound')
+
+breed = input('Ведите название породы собаки на английском языке: ')
+user_token = input('Введите Ваш OAuth-токен Яндекс Диска: ')
+
+dog_image_link = get_random_breed_image(breed)
+
+upload_image_to_ya_disk(
+    breed=dog_image_link['breed'], 
+    filename=dog_image_link['filename'], 
+    breed_image=dog_image_link['breed_image'], 
+    user_token=user_token
+)
