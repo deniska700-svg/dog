@@ -6,7 +6,6 @@ def get_list_subbreeds(breed):
     url_sub_breed_list = f'https://dog.ceo/api/breed/{breed}/list'
     response_list = requests.get(url_sub_breed_list)
     dog_list = response_list.json()['message']
-    print(dog_list)
     
     return {
         'breed': breed,
